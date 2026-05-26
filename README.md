@@ -307,7 +307,7 @@ Never average final weights from different experts — average their matrices fi
 ## Quick Start
 
 ### Installation
-1. Open [ahp.noufalriz.me](ahp.noufalriz.me) in a modern browser
+1. Open [ahp.noufalriz.me](https://ahp.noufalriz.me) in a modern browser
 2. No installation or build required
 
 ### Usage
