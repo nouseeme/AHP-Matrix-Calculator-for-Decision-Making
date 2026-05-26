@@ -4,3 +4,13 @@ architecture.md
 
 # Ignore the entire local folder and everything inside it
 local/
+
+# Dependencies
+node_modules/
+
+# Build outputs
+dist/
+build/
+
+# Package manager files
+*.tsbuildinfo
