@@ -7,6 +7,9 @@ function App() {
     const [results, setResults] = useState(null);
 
     const handleCriteriaSubmit = (criteriaList) => {
+        if (JSON.stringify(criteriaList) !== JSON.stringify(criteria)) {
+            setComparisonMatrix([]);
+        }
         setCriteria(criteriaList);
         setStep(2);
     };
@@ -44,18 +47,19 @@ function App() {
                         AHP Decision Dashboard
                     </h1>
                     <p style={{ color: 'var(--text-secondary)', fontSize: '0.875rem', margin: 0, lineHeight: 'var(--lh-body)' }}>
-                        Analytical Hierarchy Process for Multi-Criteria Decision Making
+                        Analytic Hierarchy Process for Comparing Decision Criteria
                     </p>
                 </div>
 
                 {/* Main Content */}
                 <div>
                     {step === 1 && (
-                        <window.CriteriaInput onNext={handleCriteriaSubmit} />
+                        <window.CriteriaInput initialCriteria={criteria} onNext={handleCriteriaSubmit} />
                     )}
                     {step === 2 && (
                         <window.ComparisonMatrix 
                             criteria={criteria} 
+                            initialMatrix={comparisonMatrix}
                             onNext={handleComparisonSubmit}
                             onBack={handleComparisonBack}
                         />

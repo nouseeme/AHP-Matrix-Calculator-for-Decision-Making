@@ -1,17 +1,18 @@
 const { useState } = React;
 
-function CriteriaInput({ onNext }) {
-    const [criteria, setCriteria] = useState(['', '', '']);
+function CriteriaInput({ initialCriteria, onNext }) {
+    const [criteria, setCriteria] = useState(() => initialCriteria.length ? initialCriteria : ['', '', '']);
     const [error, setError] = useState('');
 
     const handleInputChange = (index, value) => {
         const updated = [...criteria];
-        updated[index] = value.trim();
+        updated[index] = value;
         setCriteria(updated);
         setError('');
     };
 
     const handleAddCriteria = () => {
+        if (criteria.length >= 10) return;
         setCriteria([...criteria, '']);
         setError('');
     };
@@ -24,10 +25,15 @@ function CriteriaInput({ onNext }) {
     };
 
     const handleNext = () => {
-        const filledCriteria = criteria.filter(c => c.length > 0);
+        const filledCriteria = criteria.map(c => c.trim()).filter(Boolean);
 
         if (filledCriteria.length < 3) {
             setError('Minimum 3 criteria required');
+            return;
+        }
+
+        if (filledCriteria.length > 10) {
+            setError('Maximum 10 criteria supported');
             return;
         }
 
@@ -40,14 +46,14 @@ function CriteriaInput({ onNext }) {
         onNext(filledCriteria);
     };
 
-    const filledCount = criteria.filter(c => c.length > 0).length;
+    const filledCount = criteria.filter(c => c.trim().length > 0).length;
 
     return (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--section-gap)' }}>
             <div>
                 <span style={{ fontSize: '0.75rem', fontWeight: '500', textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--text-disabled)', marginBottom: '24px', display: 'block' }}>Step 1: Define Criteria</span>
                 <h2 style={{ margin: 0, marginBottom: '4px' }}>Criteria</h2>
-                <p style={{ color: 'var(--text-secondary)', margin: 0, fontSize: '0.9375rem', lineHeight: 'var(--lh-body)' }}>Add the factors your decision depends on. Minimum 3 criteria required.</p>
+                <p style={{ color: 'var(--text-secondary)', margin: 0, fontSize: '0.9375rem', lineHeight: 'var(--lh-body)' }}>Add the factors your decision depends on. Enter 3–10 criteria.</p>
             </div>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--md)' }}>
@@ -136,6 +142,7 @@ function CriteriaInput({ onNext }) {
             <div style={{ display: 'flex', gap: 'var(--md)', paddingTop: 'var(--md)', justifyContent: 'space-between' }}>
                 <button
                     onClick={handleAddCriteria}
+                    disabled={criteria.length >= 10}
                     className="btn-secondary"
                     style={{
                         padding: '8px 18px',

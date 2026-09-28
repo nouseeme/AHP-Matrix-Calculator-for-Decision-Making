@@ -1,5 +1,5 @@
 /**
- * Generate and download AHP analysis report as markdown
+ * Generate and download an AHP analysis report as Markdown
  */
 
 function generateMarkdownReport(criteria, results) {
@@ -11,7 +11,7 @@ function generateMarkdownReport(criteria, results) {
         .map((name, idx) => ({ name, weight: weights[idx] }))
         .sort((a, b) => b.weight - a.weight);
     
-    // Get top 3 for narrative (or all if fewer than 3)
+    // Get representative criteria for the summary
     const c1 = ranking[0];
     const c2 = ranking[1];
     const c3 = ranking[ranking.length - 1];
@@ -19,12 +19,12 @@ function generateMarkdownReport(criteria, results) {
     const timestamp = new Date().toLocaleDateString();
     
     // Section 1: Priority Ranking
-    const priorityNarrative = `Across ${criteria.length} pairwise comparisons, ${c1.name} emerged as the dominant factor, carrying ${(c1.weight * 100).toFixed(1)}% of the total weight. ${c2.name} followed at ${(c2.weight * 100).toFixed(1)}%, a meaningful but secondary influence. ${c3.name} contributed least, at ${(c3.weight * 100).toFixed(1)}% — present in the decision, but not driving it. This ranking reflects the cumulative effect of all your individual comparisons, synthesized into normalized priority weights that sum to 100%.`;
+    const priorityNarrative = `Across ${criteria.length * (criteria.length - 1) / 2} criterion pairs, ${c1.name} received the highest weight (${(c1.weight * 100).toFixed(1)}%), followed by ${c2.name} (${(c2.weight * 100).toFixed(1)}%). ${c3.name} received the lowest weight (${(c3.weight * 100).toFixed(1)}%). These weights reflect the comparisons you entered and sum to 100%.`;
     
     // Section 2: Consistency
     const consistencyNarrative = cr < THRESHOLD_GOOD 
-        ? `Your comparisons are logically coherent — when ${c1.name} outweighs ${c2.name} and ${c2.name} outweighs ${c3.name}, your judgment reflected that ${c1.name} outweighs ${c3.name}. The weights produced here are reliable and reflect a stable preference structure.`
-        : `Your comparisons contain contradictions. This doesn't invalidate the result, but it means the weights are directional rather than precise. If this decision carries significant consequence, consider revisiting the comparisons that feel least certain to improve logical consistency.`;
+        ? `The consistency ratio is below ${THRESHOLD_GOOD}. This indicates that the comparisons are reasonably consistent under the app's threshold; it does not validate the underlying judgment or guarantee a good decision.`
+        : `The consistency ratio is above ${THRESHOLD_GOOD}. Review comparisons that may conflict with one another before relying on these weights.`;
     
     // Section 3: Technical Metrics table with formulas
     const technicalMetrics = `
@@ -32,11 +32,11 @@ function generateMarkdownReport(criteria, results) {
 |--------|-------|---------|-----------------|
 | Lambda Max (λ_max) | ${lambdaMax.toFixed(4)} | Eigenvalue of pairwise matrix | Measures how well the matrix satisfies the consistency condition. Closer to n (${criteria.length}) indicates perfect consistency; higher values suggest logical contradictions. |
 | Consistency Index (CI) | ${ci.toFixed(4)} | (λ_max - n) / (n - 1) | Normalized measure of deviation from perfect consistency. Lower values indicate more coherent judgments. A CI of 0 means perfect consistency. |
-| Consistency Ratio (CR) | ${cr.toFixed(4)} | CI / RI | Compares your CI against a random matrix's CI (RI). CR < ${THRESHOLD_GOOD} is excellent; ${THRESHOLD_GOOD} ≤ CR < ${THRESHOLD_ACCEPTABLE} is acceptable; CR ≥ ${THRESHOLD_ACCEPTABLE} suggests review. |
+| Consistency Ratio (CR) | ${cr.toFixed(4)} | CI / RI | CR < ${THRESHOLD_GOOD} meets the app's consistency threshold; higher values suggest review. |
 | Criteria Count | ${criteria.length} | n | Total number of decision criteria. The matrix dimension; more criteria mean more comparisons and potential for inconsistency. |
 `;
 
-    const methodNarrative = `This analysis uses the Analytical Hierarchy Process (AHP), a mathematical framework that converts subjective pairwise judgments into objective priority weights. Your ${criteria.length} × ${criteria.length} comparison matrix was processed to extract the principal eigenvector, which represents your underlying preference structure. The consistency metrics validate whether your individual judgments form a logically coherent whole.`;
+    const methodNarrative = `This analysis uses the Analytic Hierarchy Process (AHP) to convert pairwise judgments into relative criterion weights. Your ${criteria.length} × ${criteria.length} comparison matrix was processed using the power method. The consistency metrics measure how closely the judgments fit a consistent comparison matrix.`;
 
     const markdown = `# AHP Decision Analysis
 
@@ -48,11 +48,11 @@ ${priorityNarrative}
 
 | Rank | Criterion | Weight |
 |------|-----------|--------|
-${ranking.map((item, idx) => `| ${idx + 1} | ${item.name} | ${(item.weight * 100).toFixed(2)}% |`).join('\n')}
+${ranking.map((item, idx) => `| ${idx + 1} | ${item.name.replace(/\|/g, '\\|').replace(/\r?\n/g, ' ')} | ${(item.weight * 100).toFixed(2)}% |`).join('\n')}
 
 ## How reliable are these results
 
-Consistency Ratio: ${cr.toFixed(4)}. ${cr < THRESHOLD_GOOD ? `Below ${THRESHOLD_GOOD} threshold — excellent consistency.` : cr < THRESHOLD_ACCEPTABLE ? `Between ${THRESHOLD_GOOD} and ${THRESHOLD_ACCEPTABLE} — acceptable, with minor contradictions.` : `Above ${THRESHOLD_ACCEPTABLE} — review recommended.`}
+Consistency Ratio: ${cr.toFixed(4)}. ${cr < THRESHOLD_GOOD ? `Below ${THRESHOLD_GOOD} threshold — reasonably consistent.` : cr < THRESHOLD_ACCEPTABLE ? `Between ${THRESHOLD_GOOD} and ${THRESHOLD_ACCEPTABLE} — review comparisons.` : `Above ${THRESHOLD_ACCEPTABLE} — substantial inconsistency; revise comparisons.`}
 
 ${consistencyNarrative}
 

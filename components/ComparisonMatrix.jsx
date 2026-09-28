@@ -1,8 +1,12 @@
-const { useState, useEffect } = React;
+const { useState } = React;
 
-function ComparisonMatrix({ criteria, onNext, onBack }) {
+function ComparisonMatrix({ criteria, initialMatrix, onNext, onBack }) {
     const n = criteria.length;
-    const [matrix, setMatrix] = useState([]);
+    const [matrix, setMatrix] = useState(() =>
+        initialMatrix.length === n
+            ? initialMatrix
+            : Array.from({ length: n }, () => Array(n).fill(1))
+    );
 
     const SAATY_SCALE = [
         1/9, 1/8, 1/7, 1/6, 1/5, 1/4, 1/3, 1/2,
@@ -41,13 +45,6 @@ function ComparisonMatrix({ criteria, onNext, onBack }) {
         return `${criterion} ${intensity}`;
     };
 
-    useEffect(() => {
-        const initialMatrix = Array(n).fill(0).map((_, i) =>
-            Array(n).fill(0).map((_, j) => i === j ? 1 : 0)
-        );
-        setMatrix(initialMatrix);
-    }, [n]);
-
     // Generate all unique pairs (upper triangle only)
     const pairs = [];
     for (let i = 0; i < n; i++) {
@@ -56,7 +53,7 @@ function ComparisonMatrix({ criteria, onNext, onBack }) {
         }
     }
 
-    // Count completed comparisons (non-default values)
+    // Count comparisons with a non-equal preference
     const completedCount = pairs.filter(([i, j]) => matrix[i]?.[j] && matrix[i][j] !== 1).length;
     const totalPairs = pairs.length;
 
@@ -98,11 +95,6 @@ function ComparisonMatrix({ criteria, onNext, onBack }) {
     }
 
     const handleCalculate = () => {
-        const allFilled = pairs.every(([i, j]) => {
-            const val = matrix[i][j];
-            return val && val !== 0;
-        });
-
         onNext(matrix);
     };
 
@@ -122,7 +114,7 @@ function ComparisonMatrix({ criteria, onNext, onBack }) {
             {/* Progress */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingBottom: '16px', borderBottom: '1px solid var(--border)' }}>
                 <span style={{ fontSize: '0.9375rem', color: 'var(--text-secondary)' }}>
-                    {completedCount} of {totalPairs} compared
+                    {completedCount} of {totalPairs} non-equal preferences
                 </span>
                 <span style={{ fontSize: '0.9375rem', fontFamily: 'var(--font-mono)', color: 'var(--text-disabled)' }}>
                     {completedCount}/{totalPairs}

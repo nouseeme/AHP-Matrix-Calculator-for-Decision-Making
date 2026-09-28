@@ -1,6 +1,10 @@
-# Ignore specific markdown files
-guide.md
-architecture.md
-
-# Ignore the entire local folder and everything inside it
+# Private working notes and generated analysis files
 local/
+.understand-anything/
+
+# Common local tooling output
+node_modules/
+dist/
+coverage/
+.DS_Store
+Thumbs.db

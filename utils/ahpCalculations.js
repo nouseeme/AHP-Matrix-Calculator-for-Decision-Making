@@ -1,18 +1,3 @@
-// Matrix multiplication helper
-function multiplyMatrices(matrixA, matrixB) {
-    const n = matrixA.length;
-    const result = Array(n).fill(0).map(() => Array(n).fill(0));
-    
-    for (let i = 0; i < n; i++) {
-        for (let j = 0; j < n; j++) {
-            for (let k = 0; k < n; k++) {
-                result[i][j] += matrixA[i][k] * matrixB[k][j];
-            }
-        }
-    }
-    return result;
-}
-
 // Normalize a vector (make sum = 1)
 function normalizeVector(vector) {
     const sum = vector.reduce((acc, val) => acc + val, 0);
@@ -43,8 +28,8 @@ export function calculateWeights(matrix) {
             sum + Math.abs(val - vector[i]), 0
         );
         
-        if (diff < window.preferences.CONVERGENCE_THRESHOLD) break;
         vector = newVector;
+        if (diff < window.preferences.CONVERGENCE_THRESHOLD) break;
     }
     
     return vector;

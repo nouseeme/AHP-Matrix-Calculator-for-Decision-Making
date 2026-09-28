@@ -13,9 +13,9 @@ function Results({ results, criteria, onRestart, onGoToStep2 }) {
         stateColor = 'var(--success)';
         stateMessage = `Excellent consistency - CR < ${THRESHOLD_GOOD}`;
     } else if (cr < THRESHOLD_ACCEPTABLE) {
-        consistencyState = 'Acceptable';
+        consistencyState = 'Review';
         stateColor = 'var(--warning)';
-        stateMessage = `Acceptable consistency - ${THRESHOLD_GOOD} ≤ CR < ${THRESHOLD_ACCEPTABLE}`;
+        stateMessage = `Review comparisons - ${THRESHOLD_GOOD} ≤ CR < ${THRESHOLD_ACCEPTABLE}`;
     } else {
         consistencyState = 'Inconsistent';
         stateColor = 'var(--error)';

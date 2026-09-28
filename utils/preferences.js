@@ -7,7 +7,7 @@ const PREFERENCES = {
   // Consistency Ratio thresholds
   CR: {
     THRESHOLD_GOOD: 0.1,      // CR < 0.1: Excellent/Good
-    THRESHOLD_ACCEPTABLE: 0.3 // 0.1 <= CR < 0.15: Acceptable; CR >= 0.15: Poor/Unacceptable
+    THRESHOLD_ACCEPTABLE: 0.2 // 0.1 <= CR < 0.2: Review; CR >= 0.2: Inconsistent
   },
 
   // Convergence threshold for eigenvalue calculation
